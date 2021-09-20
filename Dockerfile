@@ -7,7 +7,7 @@ LABEL \
     io.k8s.description="OVAL security scanner for scanning hosts through a host mount"
 
 RUN true \
-    && microdnf install -y bzip2 \
+    && microdnf install -y bzip2 xmlstarlet \
     && microdnf clean all \
     && true
 
