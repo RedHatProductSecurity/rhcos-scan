@@ -1,19 +1,23 @@
 #/bin/bash
 source /host/usr/lib/os-release
+
+if [ -z "${RHEL_VERSION}" -o -z "$OPENSHIFT_VERSION" ]; then
+  echo "RHEL_VERSION or OPENSHIFT_VERSION not set in /usr/lib/os-release"
+  exit 1
+fi
+
 echo "RHEL_VERSION: $RHEL_VERSION"
 echo "OPENSHIFT_VERSION: $OPENSHIFT_VERSION"
 
-curl "https://www.redhat.com/security/data/oval/v2/RHEL8/openshift-$OPENSHIFT_VERION.oval.xml.bz2" -o "openshift.oval.xml.bz2" -s
+if [ "$RHEL_VERSION" = 8.3 ]; then
+  echo "OCP versions 4.7 before 4.7.24 used an unreleased version of RHEL-eus (8.3)."
+  exit 1
+fi
+
+curl "https://www.redhat.com/security/data/oval/v2/RHEL8/openshift-$OPENSHIFT_VERSION.oval.xml.bz2" -o "openshift.oval.xml.bz2" -s
 curl "https://www.redhat.com/security/data/oval/v2/RHEL8/rhel-$RHEL_VERSION-eus.oval.xml.bz2" -o "rhel-eus.oval.xml.bz2" -s
 
 bzip2 -d *.oval.xml.bz2
 
-# Add all the relevant OVAL content from the openshift OVAL file into the rhel-eus one and save it as rhcos.oval.xml
-cat rhel-eus.oval.xml | xmlstarlet edit -N x="http://oval.mitre.org/XMLSchema/oval-definitions-5" \
- --subnode '//x:definitions' --type text -n '' --value "$(xmlstarlet sel -N x='http://oval.mitre.org/XMLSchema/oval-definitions-5' -t -c '//x:definitions/*' openshift.oval.xml)" \
- --subnode '//x:objects' --type text -n '' --value "$(xmlstarlet sel -N x='http://oval.mitre.org/XMLSchema/oval-definitions-5' -t -c '//x:objects/*' openshift.oval.xml)" \
- --subnode '//x:states' --type text -n '' --value "$(xmlstarlet sel -N x='http://oval.mitre.org/XMLSchema/oval-definitions-5' -t -c '//x:states/*' openshift.oval.xml)" \
- --subnode '//x:states' --type text -n '' --value "$(xmlstarlet sel -N x='http://oval.mitre.org/XMLSchema/oval-definitions-5' -t -c '//x:states/*' openshift.oval.xml)" \
- | xmlstarlet unescape > rhcos.oval.xml
-
-oscap-chroot /host oval eval rhcos.oval.xml
+oscap-chroot /host oval eval --report "openshift-$OPENSHIFT_VERSION.html" openshift.oval.xml
+oscap-chroot /host oval eval --report "rhel-eus-$RHEL_VERSION.html" rhel-eus.oval.xml

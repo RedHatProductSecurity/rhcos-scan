@@ -1,4 +1,4 @@
-FROM quay.io/compliance-operator/openscap-ocp
+FROM registry.fedoraproject.org/fedora:34
 
 LABEL \
     name="rhcos-scan" \
@@ -7,8 +7,8 @@ LABEL \
     io.k8s.description="OVAL security scanner for scanning hosts through a host mount"
 
 RUN true \
-    && microdnf install -y bzip2 xmlstarlet \
-    && microdnf clean all \
+    && dnf install -y openscap-scanner bzip2 xmlstarlet \
+    && dnf clean all \
     && true
 
 COPY run.sh /opt
