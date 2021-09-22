@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: rhcos-scan
+  labels:
+    app: rhcos-scan
+spec:
+  selector:
+    matchLabels:
+      name: oval-scan
+  template:
+    metadata:
+      labels:
+        name: oval-scan
+    spec:
+      containers:
+      - name: oval-scan
+        image: quay.io/jasinner/rhcos-scan:latest
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: root
+          mountPath: /host
+          readOnly: true
+      volumes:
+      - name: root
+        hostPath:
+          path: /

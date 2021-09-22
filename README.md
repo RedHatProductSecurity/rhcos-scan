@@ -10,3 +10,8 @@ This client first determines which RPM Repositories where used to install RPMs i
 
 This client does not provide remediation advise, instead it only determines if any RPMs installed on the RHCOS host have any known vulnerabilities. [Upgrade](https://docs.openshift.com/container-platform/4.8/updating/understanding-the-update-service.html) to the latest OpenShift Container Platform version in order to remediate any vulnerabilities found. Optionally enable over the air updates to keep the RHCOS instances up to date with security patches.
 
+## Usage
+
+Optionally build a new version of the image locally and push to a container registry such as quay.io.
+
+As a user with permissions to run privileged pods in OpenShift deploy the application as a daemonset using the provided deploy.yaml file.
