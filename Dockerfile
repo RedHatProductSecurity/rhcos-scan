@@ -7,7 +7,7 @@ LABEL \
     io.k8s.description="OVAL security scanner for scanning hosts through a host mount"
 
 RUN true \
-    && dnf install -y openscap-scanner bzip2 xmlstarlet \
+    && dnf install -y openscap-scanner bzip2 \
     && dnf clean all \
     && true
 
